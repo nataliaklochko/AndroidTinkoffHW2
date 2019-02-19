@@ -16,11 +16,19 @@ public class MainActivity extends AppCompatActivity {
 
     private int documentCount = 0;
     private FragmentManager fragmentManager = getSupportFragmentManager();
+    private MenuItem delete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(DOCUMENT_COUNT, documentCount);
     }
 
 
@@ -34,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.main, menu);
+        delete = menu.getItem(1);
+        checkEnabled();
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -52,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void onMenuAddClicked() {
         documentCount++;
+        checkEnabled();
         Log.d(LOG_TAG, "onMenuAddClicked()");
         fragmentManager.beginTransaction()
                 .add(R.id.container, DocFragment.newInstance(documentCount))
@@ -60,20 +71,21 @@ public class MainActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "Document added");
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(DOCUMENT_COUNT, documentCount);
-    }
-
     private void onMenuDeleteClicked() {
         Log.d(LOG_TAG, "onMenuDeleteClicked()");
-        if (documentCount > 0) {
-            documentCount--;
-            fragmentManager.popBackStack();
-            Log.d(LOG_TAG, "Document deleted.");
+        documentCount--;
+        fragmentManager.popBackStack();
+        Log.d(LOG_TAG, "Document deleted.");
+        checkEnabled();
+    }
+
+    private void checkEnabled() {
+        if (documentCount < 1) {
+            delete.setEnabled(false);
+        } else if (documentCount == 1) {
+            delete.setEnabled(true);
         } else {
-            Log.d(LOG_TAG, "No documents on the stack.");
+            delete.setEnabled(true);
         }
     }
 
