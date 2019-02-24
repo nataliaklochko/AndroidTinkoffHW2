@@ -17,6 +17,7 @@ public class DocFragment extends Fragment {
 
     private static final String DOCUMENT_COUNT = "document_count";
     private TextView textView;
+    private String text;
 
     public static DocFragment newInstance(int documentCount) {
         Log.d(DocFragment.LOG_TAG, "DocFragment newInstance()");
@@ -35,7 +36,8 @@ public class DocFragment extends Fragment {
         View view = inflater.inflate(R.layout.doc_fragment, container, false);
         textView = (TextView) view.findViewById(R.id.text_view);
         int documentCount = getArguments().getInt(DOCUMENT_COUNT);
-        textView.setText(String.format("Документ №%d", documentCount));
+        text = getResources().getText(R.string.document) + String.valueOf(documentCount);
+        textView.setText(text);
         return view;
 
     }

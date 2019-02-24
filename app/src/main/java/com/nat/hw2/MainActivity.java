@@ -15,9 +15,9 @@ public class MainActivity extends AppCompatActivity {
     private static String LOG_TAG = "MainActivity";
     private static final String DOCUMENT_COUNT = "document_count";
 
-    private int documentCount = 0;
     private FragmentManager fragmentManager = getSupportFragmentManager();
     private MenuItem delete;
+    private int documentCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,21 +29,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(DOCUMENT_COUNT, documentCount);
-    }
-
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        documentCount = savedInstanceState.getInt(DOCUMENT_COUNT);
+        outState.putInt(DOCUMENT_COUNT, fragmentManager.getBackStackEntryCount());
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.main, menu);
-        delete = menu.getItem(1);
+        delete = menu.findItem(R.id.action_delete);
         checkEnabled();
         return super.onCreateOptionsMenu(menu);
     }
@@ -53,20 +46,19 @@ public class MainActivity extends AppCompatActivity {
 
         if (item.getItemId() == R.id.action_add) {
             onMenuAddClicked();
-            return true;
         } else if (item.getItemId() == R.id.action_delete) {
             onMenuDeleteClicked();
-            return true;
         }
+        fragmentManager.executePendingTransactions();
+        checkEnabled();
         return super.onOptionsItemSelected(item);
     }
 
     private void onMenuAddClicked() {
-        documentCount++;
-        checkEnabled();
         Log.d(LOG_TAG, "onMenuAddClicked()");
+        documentCount = fragmentManager.getBackStackEntryCount();
         fragmentManager.beginTransaction()
-                .add(R.id.container, DocFragment.newInstance(documentCount))
+                .add(R.id.container, DocFragment.newInstance(documentCount + 1))
                 .addToBackStack(null)
                 .commit();
         Log.d(LOG_TAG, "Document added");
@@ -74,18 +66,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void onMenuDeleteClicked() {
         Log.d(LOG_TAG, "onMenuDeleteClicked()");
-        documentCount--;
         fragmentManager.popBackStack();
         Log.d(LOG_TAG, "Document deleted.");
-        checkEnabled();
     }
 
     private void checkEnabled() {
-        if (documentCount < 1) {
+        documentCount = fragmentManager.getBackStackEntryCount();
+        if (documentCount == 0) {
             delete.setEnabled(false);
         } else if (documentCount == 1) {
-            delete.setEnabled(true);
-        } else {
             delete.setEnabled(true);
         }
     }

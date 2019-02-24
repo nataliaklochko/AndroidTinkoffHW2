@@ -3,4 +3,5 @@
     <string name="action_add">Добавить</string>
     <string name="action_delete">Удалить</string>
     <string name="text_view">TextView</string>
+    <string name="document">Документ №</string>
 </resources>
